@@ -1,22 +1,32 @@
 import os
-from openai import OpenAI
+import json
+import google.generativeai as genai
 
-client = OpenAI(api_key=os.getenv("AIBuilderPlatformKey"))
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-def generate_project(prompt: str):
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {
-                "role": "system",
-                "content": "You are an expert software architect. Return tools, roadmap, and components."
-            },
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        temperature=0.3
-    )
+MODEL = genai.GenerativeModel(
+    model_name="gemini-1.5-flash",
+    system_instruction="""
+You are an expert AI software architect.
 
-    return response.choices[0].message.content
+You MUST return ONLY valid JSON.
+No explanations. No markdown. No extra text.
+
+Return exactly this structure:
+{
+  "analysis": {
+    "project_type": [],
+    "domain": [],
+    "difficulty": ""
+  },
+  "tools": [],
+  "roadmap": [],
+  "components": []
+}
+"""
+)
+
+def generate_project(prompt):
+    response = MODEL.generate_content(prompt)
+    text = response.text.strip()
+    return json.loads(text)
