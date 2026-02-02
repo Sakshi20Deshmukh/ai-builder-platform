@@ -1,7 +1,6 @@
 import os
 import json
-import google.generativeai as genai
-
+from google import genai
 
 def generate_project(prompt: str):
     try:
@@ -9,21 +8,17 @@ def generate_project(prompt: str):
         if not api_key:
             raise ValueError("GEMINI_API_KEY not found")
 
-        genai.configure(api_key=api_key)
+        client = genai.Client(api_key=api_key)
 
-        model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
-            system_instruction="""
+        system_prompt = """
 You are an expert AI software architect.
 
-Return a SINGLE valid JSON object.
+Return ONLY valid JSON.
 No markdown.
 No explanations.
 No text outside JSON.
 
-If information is missing, infer reasonable values.
-
-Required JSON format:
+JSON format:
 {
   "analysis": {
     "project_type": ["string"],
@@ -35,26 +30,22 @@ Required JSON format:
   "components": ["string"]
 }
 """
+
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=[
+                system_prompt,
+                prompt
+            ]
         )
 
-        response = model.generate_content(prompt)
         raw = response.text.strip()
+        print("RAW LLM OUTPUT:", raw)  # TEMP DEBUG
 
-        print("RAW LLM OUTPUT:", raw)  # DEBUG (temporary)
-
-        # safer JSON extraction
-        start = raw.find("{")
-        end = raw.rfind("}") + 1
-
-        if start == -1 or end == -1:
-            raise ValueError("No JSON found in LLM response")
-
-        json_text = raw[start:end]
-        return json.loads(json_text)
+        return json.loads(raw)
 
     except Exception as e:
         print("LLM ERROR:", str(e))
-
         return {
             "analysis": {
                 "project_type": [],
