@@ -16,25 +16,23 @@ def generate_project(prompt: str):
             system_instruction="""
 You are an expert AI software architect.
 
-STRICT RULES:
-- Output ONLY raw JSON
-- No markdown
-- No explanations
-- No greetings
-- No text before or after JSON
+Return a SINGLE valid JSON object.
+No markdown.
+No explanations.
+No text outside JSON.
 
-The response MUST start with '{' and end with '}'.
+If information is missing, infer reasonable values.
 
-JSON format:
+Required JSON format:
 {
   "analysis": {
-    "project_type": [],
-    "domain": [],
-    "difficulty": ""
+    "project_type": ["string"],
+    "domain": ["string"],
+    "difficulty": "string"
   },
-  "tools": [],
-  "roadmap": [],
-  "components": []
+  "tools": ["string"],
+  "roadmap": ["string"],
+  "components": ["string"]
 }
 """
         )
@@ -42,10 +40,16 @@ JSON format:
         response = model.generate_content(prompt)
         raw = response.text.strip()
 
-        start = raw.index("{")
-        end = raw.rindex("}") + 1
-        json_text = raw[start:end]
+        print("RAW LLM OUTPUT:", raw)  # DEBUG (temporary)
 
+        # safer JSON extraction
+        start = raw.find("{")
+        end = raw.rfind("}") + 1
+
+        if start == -1 or end == -1:
+            raise ValueError("No JSON found in LLM response")
+
+        json_text = raw[start:end]
         return json.loads(json_text)
 
     except Exception as e:
