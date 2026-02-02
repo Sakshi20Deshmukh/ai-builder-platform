@@ -28,14 +28,26 @@ def generate_project(prompt: str):
         )
 
         text = response.text
+        if not text:
+            raise ValueError("Empty response from Gemini")
+
         start = text.find("{")
         end = text.rfind("}") + 1
+        if start == -1 or end == -1:
+            raise ValueError("No JSON found in Gemini response")
+
         return json.loads(text[start:end])
 
     except Exception as e:
         return {
-            "analysis": {"project_type": [], "domain": [], "difficulty": ""},
+            "analysis": {
+                "project_type": [],
+                "domain": [],
+                "difficulty": ""
+            },
             "tools": [],
             "roadmap": [],
-            "components": ["Unable to generate project. Please try a clearer prompt."]
+            "components": [
+                f"LLM failed: {str(e)}"
+            ]
         }
