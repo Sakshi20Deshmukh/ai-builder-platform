@@ -26,31 +26,20 @@ def home():
 # ---------------- ANALYZE ----------------
 @app.route("/analyze", methods=["POST"])
 def analyze():
-    try:
-        data = request.get_json()
-        prompt = data.get("prompt", "").strip()
+    data = request.get_json()
+    prompt = data.get("prompt", "").strip()
 
-        if not prompt:
-            return jsonify({"error": "Prompt is required"}), 400
+    if not prompt:
+        return jsonify({"error": "Prompt is required"}), 400
 
-        if not prompt:
-            return jsonify({"error": "Prompt cannot be empty"}), 400
+    # Call LLM
+    result = generate_project(prompt)
 
-        if not re.search(r"[a-zA-Z]{2,}", prompt):
-            return jsonify({"error": "Please enter a meaningful project description"}), 400
-
-        if len(prompt.split()) < 3:
-            return jsonify({"error": "Prompt too short to understand"}), 400
-
-
-        result = generate_project(prompt)
-        return jsonify(result), 200
-
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
-
+    # Return both raw and parsed
+    return jsonify({
+        "RAW_LLM_OUTPUT": result.get("raw_text"),
+        "parsed_result": result.get("parsed")
+    }), 200
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
