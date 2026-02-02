@@ -10,44 +10,43 @@ def generate_project(prompt: str):
 
         client = genai.Client(api_key=api_key)
 
-        response = client.models.generate_content(
-        model="models/gemini-1.0-pro",
-        contents=prompt,
-        config={
-            "system_instruction": (
-                "You are an expert AI software architect. "
-                "Return ONLY valid JSON in this format:\n"
-                "{"
-                "\"analysis\": {\"project_type\": [], \"domain\": [], \"difficulty\": \"\"},"
-                "\"tools\": [],"
-                "\"roadmap\": [],"
-                "\"components\": []"
-                "}"
-            )
-        }
-    )
+        response = client.generations.create(
+            model="gemini-1.5-flash",
+            prompt=f"""
+You are an expert AI software architect.
 
-        text = response.text
-        if not text:
-            raise ValueError("Empty response from Gemini")
+Return ONLY valid JSON in this exact format:
+{{
+  "analysis": {{"project_type": [], "domain": [], "difficulty": ""}},
+  "tools": [],
+  "roadmap": [],
+  "components": []
+}}
 
-        start = text.find("{")
-        end = text.rfind("}") + 1
-        if start == -1 or end == -1:
-            raise ValueError("No JSON found in Gemini response")
+Generate the JSON for this project description:
+"{prompt}"
+"""
+        )
 
-        return json.loads(text[start:end])
+        raw_text = response.output_text
+        print("RAW LLM OUTPUT:", raw_text)
+
+        # Safely extract JSON
+        start = raw_text.find("{")
+        end = raw_text.rfind("}") + 1
+        parsed = json.loads(raw_text[start:end])
+
+        # ✅ Return both parsed JSON and raw
+        return {"parsed": parsed, "raw_text": raw_text}
 
     except Exception as e:
+        print("LLM ERROR:", str(e))
         return {
-            "analysis": {
-                "project_type": [],
-                "domain": [],
-                "difficulty": ""
+            "parsed": {
+                "analysis": {"project_type": [], "domain": [], "difficulty": ""},
+                "tools": [],
+                "roadmap": [],
+                "components": [f"LLM failed: {str(e)}"]
             },
-            "tools": [],
-            "roadmap": [],
-            "components": [
-                f"LLM failed: {str(e)}"
-            ]
+            "raw_text": None
         }
