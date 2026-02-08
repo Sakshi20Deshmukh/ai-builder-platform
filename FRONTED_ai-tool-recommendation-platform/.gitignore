@@ -5,8 +5,15 @@ __v0_jsx-dev-runtime.ts
 instrumentation-client.js
 instrumentation-client.ts
 
-# Common ignores
+# dependencies
 node_modules/
+
+# next.js
 .next/
-.env*.local
-.DS_Store
+
+# env
+.env
+.env.local
+
+# misc
+*.zip
