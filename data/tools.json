@@ -1,0 +1,38 @@
+[
+  {
+    "id": "eraser_ai",
+    "name": "Eraser AI",
+    "category": "architecture",
+    "useCase": "Generate system and architecture diagrams",
+    "projectLevel": ["beginner", "intermediate", "advanced"],
+    "url": "https://eraser.io",
+    "reason": "Used to convert project ideas into clear architecture diagrams"
+  },
+  {
+    "id": "v0_dev",
+    "name": "v0.dev",
+    "category": "ui",
+    "useCase": "Generate UI components and pages",
+    "projectLevel": ["beginner", "intermediate"],
+    "url": "https://v0.dev",
+    "reason": "Speeds up frontend development using prompt-based UI generation"
+  },
+  {
+    "id": "supabase",
+    "name": "Supabase",
+    "category": "backend",
+    "useCase": "Provides backend boilerplate with auth and database",
+    "projectLevel": ["beginner", "intermediate", "advanced"],
+    "url": "https://supabase.com",
+    "reason": "Quick backend setup"
+  },
+  {
+    "id": "vercel",
+    "name": "Vercel",
+    "category": "deployment",
+    "useCase": "Deploy frontend and backend applications",
+    "projectLevel": ["beginner", "intermediate"],
+    "url": "https://vercel.com",
+    "reason": "Simplifies deployment and hosting for web applications"
+  }
+]
