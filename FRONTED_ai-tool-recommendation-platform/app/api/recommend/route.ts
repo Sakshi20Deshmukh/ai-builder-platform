@@ -101,3 +101,11 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+
+// Explicitly block GET requests
+export async function GET() {
+  return NextResponse.json(
+    { error: 'GET method not allowed' },
+    { status: 405 }
+  )
+}

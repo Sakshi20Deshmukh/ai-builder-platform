@@ -60,3 +60,11 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+
+// Handle GET requests explicitly
+export async function GET() {
+  return NextResponse.json(
+    { error: 'GET method not allowed. Use POST instead.' },
+    { status: 405 }
+  )
+}
