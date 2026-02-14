@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { analyzePromptWithHybridAgent } from "@/lib/hybridAgent"
 
 function isValidPrompt(prompt: string): boolean {
 
@@ -59,57 +60,52 @@ export async function POST(request: NextRequest) {
 
     }
 
+    // ✅ HYBRID AGENT ANALYSIS
+    // ✅ RUN HYBRID AGENT
 
-    // ✅ ANALYSIS
-    const keywords = prompt.toLowerCase().split(/\s+/)
+    const agentResult = await analyzePromptWithHybridAgent(prompt)
 
-    const requirements: string[] = []
+    if (!agentResult.valid) {
 
+      return NextResponse.json(
+        { error: agentResult.message || "Invalid project" },
+        { status: 400 }
+      )
 
-    // Parse keywords to determine requirements
-    if (keywords.some(k => ['frontend', 'ui', 'react', 'vue', 'angular', 'next'].includes(k))) {
-      requirements.push('Frontend Framework')
-    }
-    if (keywords.some(k => ['backend', 'server', 'api', 'node', 'express', 'django'].includes(k))) {
-      requirements.push('Backend Framework')
-    }
-    if (keywords.some(k => ['database', 'db', 'postgres', 'mongodb', 'sql'].includes(k))) {
-      requirements.push('Database')
-    }
-    if (keywords.some(k => ['auth', 'authentication', 'login', 'signup'].includes(k))) {
-      requirements.push('Authentication')
-    }
-    if (keywords.some(k => ['websocket', 'realtime', 'socket', 'live'].includes(k))) {
-      requirements.push('Real-time Communication')
-    }
-    if (keywords.some(k => ['styling', 'css', 'tailwind', 'bootstrap'].includes(k))) {
-      requirements.push('CSS Framework')
-    }
-    if (keywords.some(k => ['testing', 'test', 'jest', 'vitest'].includes(k))) {
-      requirements.push('Testing Framework')
-    }
-    if (keywords.some(k => ['deploy', 'hosting', 'vercel', 'netlify'].includes(k))) {
-      requirements.push('Hosting')
     }
 
-    // Default requirements if none found
-    if (requirements.length === 0) {
-      requirements.push('Frontend Framework', 'Backend Framework', 'Database', 'Styling')
-    }
+    // ✅ RETURN STRUCTURED DATA (THIS IS THE FIX)
 
     return NextResponse.json({
-      domain: 'web-development',
-      requirements,
-      analysis: prompt,
+
+      valid: true,
+
+      domain: agentResult.domain,
+
+      requirements: agentResult.requirements,
+
+      techStack: agentResult.techStack,
+
+      aiResponse: agentResult.aiResponse
+
     })
-  } catch (error) {
+
+  }
+
+  catch (error) {
+
     console.error('Analyze error:', error)
+
     return NextResponse.json(
       { error: 'Failed to analyze project' },
       { status: 500 }
     )
+
   }
+
 }
+
+
 
 // Handle GET requests explicitly
 export async function GET() {

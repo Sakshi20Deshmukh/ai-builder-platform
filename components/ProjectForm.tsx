@@ -93,18 +93,44 @@ Project Level: ${projectLevel}
     console.log('REQUIREMENTS FROM ANALYZE API:', requirements)
 
     // 2️⃣ MAP ANALYZE → TOOL CATEGORIES
+    // ✅ SUPPORTS BOTH OLD ANALYZER + NEW HYBRID AGENT AI
+
     const requirementMap: Record<string, string> = {
+
+      // OLD FORMAT
       'Frontend Framework': 'ui',
       'Styling': 'ui',
       'Backend Framework': 'backend',
       'Database': 'database',
       'Deployment': 'deployment',
       'Architecture': 'architecture',
+
+      // NEW AI FORMAT
+      'frontend': 'ui',
+      'ui': 'ui',
+
+      'backend': 'backend',
+      'server': 'backend',
+      'api': 'backend',
+
+      'database': 'database',
+      'db': 'database',
+
+      'deployment': 'deployment',
+      'devops': 'deployment',
+
+      'architecture': 'architecture',
+      'system': 'architecture',
+
+      'ai': 'ai',
+      'ml': 'ai',
     }
 
+
     const normalizedRequirements = requirements
-      .map((r) => requirementMap[r])
-      .filter(Boolean)
+    .map((r) => requirementMap[r] || requirementMap[r.toLowerCase()])
+    .filter(Boolean)
+
 
     console.log('NORMALIZED REQUIREMENTS:', normalizedRequirements)
 
