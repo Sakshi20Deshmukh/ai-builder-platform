@@ -44,7 +44,8 @@ export default function ProjectForm() {
   const [selectedTech, setSelectedTech] = useState<string[]>([])
   const [projectLevel, setProjectLevel] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  
 
   const toggleTech = (tech: string) => {
     setSelectedTech((prev) => (prev.includes(tech) ? prev.filter((t) => t !== tech) : [...prev, tech]))
@@ -77,9 +78,16 @@ Project Level: ${projectLevel}
       body: JSON.stringify({ prompt }),
     })
 
-    if (!analyzeRes.ok) throw new Error('Failed to analyze project')
-
     const analyzeData = await analyzeRes.json()
+
+      // ❌ ERROR CASE
+    if (!analyzeRes.ok) {
+      setError(analyzeData.error || "Invalid project idea")
+      setLoading(false)  
+      return
+    }
+
+    
     const requirements: string[] = analyzeData.requirements || []
 
     console.log('REQUIREMENTS FROM ANALYZE API:', requirements)

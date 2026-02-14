@@ -1,20 +1,70 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+function isValidPrompt(prompt: string): boolean {
+
+  if (!prompt) return false
+
+  const clean = prompt.trim().toLowerCase()
+
+  if (clean.length < 15) return false
+
+  const words = clean.split(/\s+/)
+
+  if (words.length < 4) return false
+
+  // MUST contain at least one project-related keyword
+  const projectKeywords = [
+    'app',
+    'website',
+    'platform',
+    'system',
+    'dashboard',
+    'tool',
+    'ai',
+    'web',
+    'mobile',
+    'software'
+  ]
+
+  const containsProjectWord = projectKeywords.some(word =>
+    clean.includes(word)
+  )
+
+  return containsProjectWord
+}
+
 export async function POST(request: NextRequest) {
+
   try {
+
     const { prompt } = await request.json()
 
     if (!prompt || typeof prompt !== 'string') {
+
       return NextResponse.json(
         { error: 'Invalid prompt' },
         { status: 400 }
       )
+
     }
 
-    // Simulate API analysis - in production, this would call your AI backend
-    // For demo purposes, we'll extract some keywords and return mock requirements
+
+    // ✅ VALIDATION
+    if (!isValidPrompt(prompt)) {
+
+      return NextResponse.json(
+        { error: 'Please enter a valid software project idea.' },
+        { status: 400 }
+      )
+
+    }
+
+
+    // ✅ ANALYSIS
     const keywords = prompt.toLowerCase().split(/\s+/)
+
     const requirements: string[] = []
+
 
     // Parse keywords to determine requirements
     if (keywords.some(k => ['frontend', 'ui', 'react', 'vue', 'angular', 'next'].includes(k))) {
